@@ -16,18 +16,39 @@ pip install osmsg
 
 ### Development 
 
-Fork the repo 
+Fork the repo https://github.com/kshitijrajsharma/OSMSG.git
+
+Then clone your fork:
 
 ```
-git clone https://github.com/kshitijrajsharma/OSMSG.git
-cd OSMSG
+git clone https://github.com/[Your github profile name]/[The repo name you choose].git
 ```
 
-Install osmsg in editable mode to make changes locally and test 
+**If you use Debian based Linux distros, make sure the following system libraries and tools are installed**
 
 ```
-pip install -e .    
+build-essential - Provices gcc, g++ and make for compiling C/C++ code (https://packages.ubuntu.com/jammy/build-essential)
+clang - C/C++ compiler. Required by packages like 'pyproj' for building extensions on some systems.
+cmake - Needed for osmium (https://github.com/osmcode/pyosmium)
+libproj-dev - Needed for Geopandas (https://github.com/geopandas/geopandas?tab=readme-ov-file)
+proj-bin - Needed for Geopandas (https://github.com/geopandas/geopandas?tab=readme-ov-file)
+libgeos-dev - Needed for for Shapely and GeoPandas (Boost C++ libraries).
+libboost-dev - Needed for for osmium (Boost C++ libraries).
+libboost-system-dev - Needed for for osmium (Boost C++ libraries).
+libboost-filesystem-dev - Needed for for osmium (Boost C++ libraries).
+python3-dev - Provides Python headers for building Python extensions.
 ```
+
+In the terminal, you can run
+
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential cmake libproj-dev proj-bin libgeos-dev libboost-dev libboost-system-dev libboost-filesystem-dev python3-dev clang
+```
+
+Install PDM (python package and dependency manager), go to https://pdm-project.org/en/latest/#__tabbed_3_5
+and follow the instructions.
+
 
 ### [DOCKER] Install with Docker locally
 
