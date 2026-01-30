@@ -21,6 +21,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+"""OSMSG (OpenStreetMap Stats Generator) - Tweet Generator Module.
+
+This module is deprecated, but part of the code can be used to post stats on
+oither platforms, such as Mastodon
+
+This module automated the generation and tweeting of OpenStreetMap (OSM) contribution statistics.
+It read a CSV file containing OSM contribution data, generated summary statistics,
+and posted them as a tweet (optionally with images and a thread).
+It used the Tweepy library for Twitter API interaction and Pandas for data processing.
+"""
+
 import argparse
 import os
 
@@ -30,6 +41,24 @@ import tweepy
 
 
 def main():
+    """Main function to post tweets.
+
+    It parses command-line arguments, process OSM contrubtion data and
+    post a tweet with statistics and optional images
+
+    Steps:
+    1. Parses command-line arguments for output file name, tweet text, mention, and Git commit ID.
+    2. Authenticates with the Twitter API using environment variables.
+    3. Reads and processes the CSV file containing OSM contribution data.
+    4. Generates summary statistics for the tweet and thread.
+    5. Uploads images (if available) and posts the tweet and thread.
+
+    Command-line arguments:
+        --name (str): Output stat file name. Default: "stats".
+        --tweet (str): Main stats name to include in the tweet. Required.
+        --mention (str): Twitter ID to mention in the tweet. Provide with @. Default: "".
+        --git (str): GitHub commit ID to include in the tweet. Default: "master".
+    """
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -81,23 +110,33 @@ def main():
     deleted_sum = df["nodes.delete"] + df["ways.delete"] + df["relations.delete"]
 
     # Get the attribute of first row
-    summary_text = f"{len(df)} Users made {df['changesets'].sum()} changesets with {humanize.intword(df['map_changes'].sum())} map changes."
+    summary_text = (
+        f"{len(df)} Users made {df['changesets'].sum()} changesets with "
+        f"{humanize.intword(df['map_changes'].sum())} map changes."
+    )
     thread_summary = (
-        f"{humanize.intword(created_sum.sum())} OSM Elements were Created, {humanize.intword(modified_sum.sum())} Modified & {humanize.intword(deleted_sum.sum())} Deleted. Including {humanize.intword(df['building.create'].sum())} buildings & {humanize.intword(df['highway.create'].sum())} highways created."
+        f"{humanize.intword(created_sum.sum())} OSM Elements were Created, "
+        f"{humanize.intword(modified_sum.sum())} Modified & "
+        f"{humanize.intword(deleted_sum.sum())} Deleted. Including "
+        f"{humanize.intword(df['building.create'].sum())} buildings & "
+        f"{humanize.intword(df['highway.create'].sum())} highways created."
         if "building" in df.columns and "highway" in df.columns
-        else f"{humanize.intword(created_sum.sum())} OSM Elements were Created, {humanize.intword(modified_sum.sum())} Modified & {humanize.intword(deleted_sum.sum())} Deleted. {df.loc[0, 'name']} tops table with {humanize.intword(df.loc[0, 'map_changes'])} changes followed by {df.loc[1, 'name']}"
+        else f"{humanize.intword(created_sum.sum())} OSM Elements were Created, "
+        f"{humanize.intword(modified_sum.sum())} Modified & {humanize.intword(deleted_sum.sum())} "
+        f"Deleted. {df.loc[0, 'name']} tops table with "
+        f"{humanize.intword(df.loc[0, 'map_changes'])} changes followed by {df.loc[1, 'name']}"
     )
 
     try:
         api.verify_credentials()
         print("Authentication OK")
-    except:
-        print("Error during authentication")
+    except Exception as e:
+        print(f"Error during authentication: {e}")
     media_ids = []
     thread_media_ids = []
 
     chart_png_files = [f for f in os.listdir(base_dir) if f.endswith(".png")]
-    for i, chart in enumerate(chart_png_files):
+    for _i, chart in enumerate(chart_png_files):
         file_path = os.path.join(base_dir, chart)
         chart_media = api.media_upload(file_path)
         if len(media_ids) < 4:
@@ -108,11 +147,15 @@ def main():
         else:
             thread_media_ids.append(chart_media.media_id)
     orginal_tweet = api.update_status(
-        status=f"{args.tweet} Contributions\n{start_date} to {end_date}\n{summary_text}\nFullStats:https://github.com/kshitijrajsharma/OSMSG/blob/{args.git}/{rel_csv_path}  #gischat #OpenStreetMap {args.mention}",
+        status=(
+            f"{args.tweet} Contributions\n{start_date} to "
+            f"{end_date}\n{summary_text}\nFullStats:https://github.com/kshitijrajsharma/OSMSG/blob/{args.git}/{rel_csv_path}"
+            f"#gischat #OpenStreetMap {args.mention}"
+        ),
         media_ids=media_ids,
     )
     if len(thread_media_ids) > 0:
-        thread_tweet = api.update_status(
+        api.update_status(
             status=thread_summary,
             in_reply_to_status_id=orginal_tweet.id,
             auto_populate_reply_metadata=True,
