@@ -22,6 +22,7 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
+          activate-environment: "true"
 
       - name: Install Osmium
         run: |
@@ -31,13 +32,9 @@ jobs:
       - name: Install necessary dependencies
         run: uv sync
 
-      - name: Install osmsg in editable mode
-        run: uv pip install -e .
-
       - name: Generate Last hour stats
         env:
           OSM_USERNAME: ${{ secrets.OSM_USERNAME }}
           OSM_PASSWORD: ${{ secrets.OSM_PASSWORD }}
         run: |
-          source .venv/bin/activate
           osmsg --format csv image --last_hour --tags 'building' 'highway' 'waterway' 'amenity' --name stats --all_tags --changeset --summary --charts

@@ -2408,7 +2408,6 @@ wheels = [
 
 [[package]]
 name = "osmsg"
-version = "0.3.0"
 source = { editable = "." }
 dependencies = [
     { name = "geopandas", version = "1.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
@@ -2477,7 +2476,7 @@ requires-dist = [
     { name = "shapely" },
     { name = "tqdm" },
 ]
-provides-extras = ["test", "docs"]
+provides-extras = ["docs", "test"]
 
 [package.metadata.requires-dev]
 dev = [

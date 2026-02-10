@@ -141,7 +141,8 @@ def seq_to_timestamp(url, timezone):
 
     # extract the substring between the two indexes
     timestamp = rtxt[timestamp_start:timestamp_end]
-    timestamp_obj = dt.datetime.strptime(timestamp, "%Y-%m-%dT%H\:%M\:%SZ")
+    timestamp_cleaned = timestamp.replace("\\", "")
+    timestamp_obj = dt.datetime.strptime(timestamp_cleaned, "%Y-%m-%dT%H:%M:%SZ")
     timestamp_obj = timestamp_obj.replace(tzinfo=dt.timezone.utc)
     tz = dt.timezone.utc
     if timezone == "Nepal":

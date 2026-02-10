@@ -38,25 +38,8 @@ docker run -it -v /home/user/data:/app/data osmsg
 
 ### Development Setup
 
-**If you use Debian based Linux distros, make sure the following system libraries**
-**and tools are installed**
-
-- build-essential - Provices gcc, g++ and make for compiling C/C++ code
-  (<https://packages.ubuntu.com/jammy/build-essential>)
-- clang - C/C++ compiler. Required by packages like 'pyproj'
-  for building extensions on some systems.
-- cmake - Needed for osmium (<https://github.com/osmcode/pyosmium>)
-- libproj-dev - Needed for Geopandas
-  (<https://github.com/geopandas/geopandas?tab=readme-ov-file>)
-- proj-bin - Needed for Geopandas
-  (<https://github.com/geopandas/geopandas?tab=readme-ov-file>)
-- libgeos-dev - Needed for for Shapely and GeoPandas (Boost C++ libraries).
-- libboost-dev - Needed for for osmium (Boost C++ libraries).
-- libboost-system-dev - Needed for for osmium (Boost C++ libraries).
-- libboost-filesystem-dev - Needed for for osmium (Boost C++ libraries).
-- python3-dev - Provides Python headers for building Python extensions.
-
-In the terminal, you can run
+**Packages needed if you use Debian based Linux distros**
+Run the following in the terminal:
 
 ```bash
 sudo apt-get update
@@ -75,12 +58,12 @@ sudo apt-get install -y \
 
 #### How to Install
 
-1. Fork the repo <https://github.com/osgeonepal>
+1. Fork the repo <https://github.com/osgeonepal/OSMSG>
 
 2. Then clone your fork:
 
 ```bash
-git clone https://github.com/osgeonepal/[The repo name you choose].git
+git clone https://github.com/<your-username>/OSMSG.git
 ```
 
 3. Install UV
