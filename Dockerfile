@@ -1,38 +1,38 @@
-## For dev:
-## docker build -t osmsg . 
-## docker run --rm -v $(pwd)/osmsg:/app/osmsg --name osmsg-container osmsg
+# Stage 1: Build
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
 
-ARG PYTHON_VERSION=3.11
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
 
-# Build stage
-FROM docker.io/python:${PYTHON_VERSION}-slim-bookworm AS build-stage
-
-RUN apt-get update -y && apt-get install -y --no-install-recommends \
-    build-essential cmake libboost-dev \
-    libexpat1-dev zlib1g-dev libbz2-dev \
-    && apt-get autoremove -y && apt-get clean
-
-# Copy project files
 WORKDIR /app
 
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    osmium-tool \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install dependencies only (for caching)
+COPY pyproject.toml uv.lock* README.md ./
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project --no-dev
+
+# Copy source code and finish sync
 COPY osmsg /app/osmsg
-COPY pyproject.toml /app/pyproject.toml
-COPY README.md /app/README.md
 COPY data /app/data
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev
 
-# Install the package
-RUN pip install -e .
+# Stage 2: Final
+FROM python:3.12-slim-bookworm
 
-# Final stage
-FROM docker.io/python:${PYTHON_VERSION}-slim-bookworm
-
-COPY --from=build-stage /usr/local /usr/local
-# COPY --from=build-stage /usr/local/osmium /usr/l/osmium
-
-# ENV PATH="/usr/bin/osmium:${PATH}"
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    osmium-tool \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY --from=build-stage /app /app
+COPY --from=builder /app /app
+
+ENV PATH="/app/.venv/bin:$PATH"
 
 CMD ["/bin/bash"]
